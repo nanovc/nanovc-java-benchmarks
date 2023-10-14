@@ -9,8 +9,10 @@ import java.util.HashMap;
 /**
  * Tests the Nano VC decomposition.
  */
-public  class NanoVCOperationalDecompositionTests extends OperationalDecompositionTests
+public class NanoVCOperationalDecompositionTests extends OperationalDecompositionTests
 {
+
+
     /**
      * The repo being tested.
      * This is initialised before each test using {@link #createRepo()}.

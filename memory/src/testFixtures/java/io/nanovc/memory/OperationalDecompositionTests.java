@@ -1,9 +1,6 @@
 package io.nanovc.memory;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Method;
 
@@ -58,8 +55,21 @@ import java.lang.reflect.Method;
  * These tests and all subclasses, are meant to be run with the code coverage analyser so that we can see what other method calls are made to implement the scenarios.
  */
 @DisplayNameGeneration(OperationalDecompositionTests.NameGenerator.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class OperationalDecompositionTests
 {
+
+    /**
+     * This is used so that we can hook up the profiler in JVisualVM.
+     * @throws InterruptedException
+     */
+    @Test
+    @Order(0)
+    public void waitToConnectJVisualVM() throws InterruptedException
+    {
+        Thread.sleep(20_000);
+
+    }
 
     //#region Scenarios
 
