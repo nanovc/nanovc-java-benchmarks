@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
  *     </ul>
  * </ul>
  * <ul>
- *     <li> * Checkout (ON):</li>
+ *     <li>Checkout (ON):</li>
  *     <ul>
  *          A previously committed snapshot is checked-out from the repo. If the checkout is followed by a number N, then it relates to the commit CN with the corresponding number.
  *     </ul>
@@ -68,7 +68,6 @@ public abstract class OperationalDecompositionTests
     public void waitToConnectJVisualVM() throws InterruptedException
     {
         Thread.sleep(20_000);
-
     }
 
     //#region Scenarios
@@ -92,7 +91,12 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NCMCDC()
     {
-
+        newContent();
+        commit();
+        modifyContent();
+        commit();
+        deleteContent();
+        commit();
     }
 
     /**
@@ -102,7 +106,9 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NCO()
     {
-
+        newContent();
+        commit();
+        checkout();
     }
 
     /**
@@ -112,34 +118,58 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NCB()
     {
-
+        newContent();
+        commit();
+        branch();
     }
     /**
      * (NCBMC): New + Commit + Branch + Modify + Commit:
-     * In this scenario, we create new content, commit it, create a branch, modify that content and then commit it again.
+     * In this scenario, we create new content, commit it, create a branch, modify that content and then commit it again to that branch.
      */
     @Test
     public void NCBMC()
     {
-
+        newContent();
+        commit();
+        branch();
+        modifyContent();
+        commit();
     }
     /**
      * (NC1B1MC2G1|2>1): New + Commit1 + Branch1 + Modify + Commit2 + Merge1|2>1:
-     * In this scenario, we create new content, commit it, modify that content, commit that and then merge both branches into the first branch. This scenario allows for a fast-forward operation which can be cheap.
+     * In this scenario, we create new content, commit it, modify that content, commit that and then merge both branches into the first branch.
+     * This scenario allows for a fast-forward operation which can be cheap.
      */
     @Test
     public void NC1B1MC2G1_2__1()
     {
-
+        newContent();
+        commit1();
+        branch1();
+        modifyContent();
+        commit2();
+        merge1_2__1();
     }
     /**
      * (NC1B1M1C2B2M1C3G2|3>1): New + Commit1 + Branch1 + Modify1 + Commit2 + Branch2 + Modify1 + Commit3 Merge2|3>1:
-     * In this scenario, which is the most complex of the scenarios, we create new content, commit it to branch 1. We then modify that content in branch 1 and commit again. We then create another branch from the first commit and then make a change to that content and commit that to branch 2. We then merge both branches back into the first branch. This scenario cannot allow for a fast-forward operation because a merge is required since changes were made in both branches.
+     * In this scenario, which is the most complex of the scenarios, we create new content, commit it to branch 1.
+     * We then modify that content in branch 1 and commit again.
+     * We then create another branch from the first commit and then make a change to that content and commit that to branch 2.
+     * We then merge both branches back into the first branch.
+     * This scenario cannot allow for a fast-forward operation because a merge is required since changes were made in both branches.
      */
     @Test
     public void NC1B1M1C2B2M1C3G2_3__1()
     {
-
+        newContent();
+        commit1();
+        branch1();
+        modify1();
+        commit2();
+        branch2();
+        modify1B();
+        commit3();
+        merge3_2__1();
     }
 
     //#endregion Scenarios
@@ -167,9 +197,91 @@ public abstract class OperationalDecompositionTests
     protected abstract void newContent();
 
     /**
-     * Commit (CN): The content-area is committed to the repo to create a snapshot. If the commit is followed by a number N, then the number is used to label the specific commit.
+     * Modify (MN): Content is modified in the content-area.
+     * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
+     */
+    protected abstract void modifyContent();
+
+    /**
+     * Modify (MN): Content is modified in the content-area.
+     * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
+     */
+    protected abstract void modify1();
+
+    /**
+     * Modify (MN): Content is modified in the content-area.
+     * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
+     */
+    protected abstract void modify1B();
+
+    /**
+     * Delete (D): Content is deleted in the content-area.
+     */
+    protected abstract void deleteContent();
+
+    /**
+     * Commit (CN): The content-area is committed to the repo to create a snapshot.
+     * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     protected abstract void commit();
+
+    /**
+     * Commit (CN): The content-area is committed to the repo to create a snapshot.
+     * If the commit is followed by a number N, then the number is used to label the specific commit.
+     */
+    protected abstract void commit1();
+
+    /**
+     * Commit (CN): The content-area is committed to the repo to create a snapshot.
+     * If the commit is followed by a number N, then the number is used to label the specific commit.
+     */
+    protected abstract void commit2();
+
+    /**
+     * Commit (CN): The content-area is committed to the repo to create a snapshot.
+     * If the commit is followed by a number N, then the number is used to label the specific commit.
+     */
+    protected abstract void commit3();
+
+    /**
+     * Checkout (ON): A previously committed snapshot is checked-out from the repo.
+     * If the checkout is followed by a number N, then it relates to the commit CN with the corresponding number.
+     */
+    protected abstract void checkout();
+
+    /**
+     * Branch (BN): A branch is created in the repo.
+     * If the branch is followed by a number N, then the number is used to label the specific branch.
+     */
+    protected abstract void branch();
+
+    /**
+     * Branch (BN): A branch is created in the repo.
+     * If the branch is followed by a number N, then the number is used to label the specific branch.
+     */
+    protected abstract void branch1();
+
+    /**
+     * Branch (BN): A branch is created in the repo.
+     * If the branch is followed by a number N, then the number is used to label the specific branch.
+     */
+    protected abstract void branch2();
+
+    /**
+     * Merge (GX|Y>Z): Two or more commits are merged into one branch.
+     * If the merge is followed by symbols, then the values separated by pipes represent the corresponding commits.
+     * The destination branch is preceded by an angle bracket >.
+     * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
+     */
+    protected abstract void merge1_2__1();
+
+    /**
+     * Merge (GX|Y>Z): Two or more commits are merged into one branch.
+     * If the merge is followed by symbols, then the values separated by pipes represent the corresponding commits.
+     * The destination branch is preceded by an angle bracket >.
+     * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
+     */
+    protected abstract void merge3_2__1();
 
     //#endregion Operations
 
