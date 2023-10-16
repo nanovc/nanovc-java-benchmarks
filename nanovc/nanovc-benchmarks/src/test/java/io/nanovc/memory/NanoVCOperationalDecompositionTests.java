@@ -241,7 +241,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
     protected void branch2()
     {
         this.branch2Name = "Branch2";
-        this.lastBranchName = this.branch1Name;
+        this.lastBranchName = this.branch2Name;
         repo.createBranchAtCommit(this.lastCommit, this.branch2Name);
     }
 
