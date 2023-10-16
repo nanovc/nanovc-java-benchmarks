@@ -25,5 +25,5 @@ def subProjects = [
 // In this case we want to prefix all of the names with nanovc (rootName):
 subProjects.each {
     include it // 'it' is an implicit variable for each item in the list. http://docs.groovy-lang.org/next/html/documentation/working-with-collections.html#_iterating_on_a_list
-    project(":$it").name = "$rootName-$it-benchmarks"
+    project(":$it").name = "$it-benchmarks"
 }
