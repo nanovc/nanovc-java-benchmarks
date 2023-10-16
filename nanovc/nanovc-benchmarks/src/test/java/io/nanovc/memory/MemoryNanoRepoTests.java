@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests common usage scenarios for the {@link MemoryRepoHandler}.
  */
-public class MemoryNanoRepoTests extends MemoryNanoVersionControlTestsBase
+public class MemoryNanoRepoTests
 {
 
     @Test

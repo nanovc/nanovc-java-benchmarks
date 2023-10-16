@@ -14,16 +14,5 @@
 def rootName = 'nanovc'
 rootProject.name = "$rootName-java-benchmarks"
 
-// Define sub project names:
-def subProjects = [
-        'memory',
-        'memory-nanovc',
-];
-
-// https://stackoverflow.com/questions/20128416/gradle-subproject-name-different-than-folder-name
-// https://stackoverflow.com/a/20128717/231860
-// In this case we want to prefix all of the names with nanovc (rootName):
-subProjects.each {
-    include it // 'it' is an implicit variable for each item in the list. http://docs.groovy-lang.org/next/html/documentation/working-with-collections.html#_iterating_on_a_list
-    project(":$it").name = "$it-benchmarks"
-}
+include 'benchmarks'
+include 'nanovc:nanovc-benchmarks'
