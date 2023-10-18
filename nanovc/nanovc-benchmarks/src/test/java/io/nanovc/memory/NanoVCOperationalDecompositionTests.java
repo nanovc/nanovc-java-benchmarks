@@ -4,8 +4,6 @@ import io.nanovc.CommitTags;
 import io.nanovc.areas.StringHashMapArea;
 import io.nanovc.memory.strings.StringNanoRepo;
 
-import java.util.HashMap;
-
 /**
  * Tests the Nano VC decomposition.
  */
@@ -73,8 +71,6 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
     protected void createRepo()
     {
         repo = new StringNanoRepo();
-
-        new HashMap<String, String>();
     }
 
     /**
