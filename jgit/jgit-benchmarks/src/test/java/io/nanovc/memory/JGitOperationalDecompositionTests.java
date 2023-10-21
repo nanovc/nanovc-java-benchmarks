@@ -84,7 +84,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
     {
         try
         {
-            git = Git.init().setDirectory(testPath.toFile()).call();
+            git = Git.init().setInitialBranch("main").setDirectory(testPath.toFile()).call();
         }
         catch (GitAPIException e)
         {
