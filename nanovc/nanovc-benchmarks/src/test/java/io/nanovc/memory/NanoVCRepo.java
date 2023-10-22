@@ -7,9 +7,18 @@ import io.nanovc.memory.strings.StringNanoRepo;
 /**
  * Tests the Nano VC decomposition.
  */
-public class NanoVCOperationalDecompositionTests extends OperationalDecompositionTests
+public class NanoVCRepo extends SystemUnderTest
 {
-
+    /**
+     * Gets the name of the system being tested.
+     *
+     * @return The name of the system being tested.
+     */
+    @Override
+    public String getSystemName()
+    {
+        return "NanoVC Repo";
+    }
 
     /**
      * The repo being tested.
@@ -68,7 +77,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * This is called once before each test starts.
      */
     @Override
-    protected void createRepo()
+    public void createRepo()
     {
         repo = new StringNanoRepo();
     }
@@ -77,7 +86,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * New (N): New content is created in the content-area.
      */
     @Override
-    protected void newContent()
+    public void newContent()
     {
         // Create some content:
         content = new StringHashMapArea();
@@ -90,7 +99,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
      */
     @Override
-    protected void modifyContent()
+    public void modifyContent()
     {
         content.putString("path","Hello Again World");
     }
@@ -100,7 +109,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
      */
     @Override
-    protected void modify1()
+    public void modify1()
     {
         // Get the content from commit 1:
         repo.checkoutIntoArea(this.commit1, this.content);
@@ -114,7 +123,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
      */
     @Override
-    protected void modify1B()
+    public void modify1B()
     {
         // Get the content from commit 1:
         repo.checkoutIntoArea(this.commit1, this.content);
@@ -127,7 +136,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * Delete (D): Content is deleted in the content-area.
      */
     @Override
-    protected void deleteContent()
+    public void deleteContent()
     {
         content.removeContent("path");
     }
@@ -137,7 +146,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit()
+    public void commit()
     {
         // Check whether we have a branch name already:
         if (this.lastBranchName == null)
@@ -159,7 +168,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit1()
+    public void commit1()
     {
         // Perform a commit:
         commit();
@@ -173,7 +182,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit2()
+    public void commit2()
     {
         // Perform a commit:
         commit();
@@ -187,7 +196,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit3()
+    public void commit3()
     {
         // Perform a commit:
         commit();
@@ -201,7 +210,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the checkout is followed by a number N, then it relates to the commit CN with the corresponding number.
      */
     @Override
-    protected void checkout()
+    public void checkout()
     {
         this.lastCheckout = repo.checkout(this.lastCommit);
     }
@@ -211,7 +220,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the branch is followed by a number N, then the number is used to label the specific branch.
      */
     @Override
-    protected void branch()
+    public void branch()
     {
         this.lastBranchName = "Branch";
         repo.createBranchAtCommit(this.lastCommit, this.lastBranchName);
@@ -222,7 +231,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the branch is followed by a number N, then the number is used to label the specific branch.
      */
     @Override
-    protected void branch1()
+    public void branch1()
     {
         this.branch1Name = "Branch1";
         this.lastBranchName = this.branch1Name;
@@ -234,7 +243,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * If the branch is followed by a number N, then the number is used to label the specific branch.
      */
     @Override
-    protected void branch2()
+    public void branch2()
     {
         this.branch2Name = "Branch2";
         this.lastBranchName = this.branch2Name;
@@ -248,7 +257,7 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
      */
     @Override
-    protected void merge1_2__1()
+    public void merge1_2__1()
     {
         this.lastCommit = repo.mergeIntoBranchFromCommit(this.branch1Name, this.commit1, "Merge Commit 1 + Commit 2 into Branch 1", CommitTags.none());
     }
@@ -260,9 +269,29 @@ public class NanoVCOperationalDecompositionTests extends OperationalDecompositio
      * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
      */
     @Override
-    protected void merge3_2__1()
+    public void merge3_2__1()
     {
         this.lastCommit = repo.mergeCommits(this.commit3, this.commit2, "Merge Commit 3 + Commit 2", CommitTags.none());
         this.lastCommit = repo.mergeIntoBranchFromCommit(this.branch1Name, this.lastCommit, "Merge Commit 3 + Commit 2 into Branch 1", CommitTags.none());
+    }
+
+    /**
+     * This creates the repo for the test.
+     * You should store the repo in an instance field.
+     * This is called once before each test starts.
+     */
+    @Override
+    public void freeRepo()
+    {
+        this.repo = null;
+        this.branch1Name = null;
+        this.branch2Name = null;
+        this.commit1 = null;
+        this.commit2 = null;
+        this.commit3 = null;
+        this.content = null;
+        this.lastBranchName = null;
+        this.lastCommit = null;
+        this.lastCheckout = null;
     }
 }

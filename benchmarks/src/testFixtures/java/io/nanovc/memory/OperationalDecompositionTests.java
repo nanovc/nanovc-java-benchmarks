@@ -1,8 +1,9 @@
 package io.nanovc.memory;
 
-import org.junit.jupiter.api.*;
-
-import java.lang.reflect.Method;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
 
 /**
  * The use-case scenarios are made up of combinations of the following operations:
@@ -54,14 +55,12 @@ import java.lang.reflect.Method;
  *
  * These tests and all subclasses, are meant to be run with the code coverage analyser so that we can see what other method calls are made to implement the scenarios.
  */
-@DisplayNameGeneration(OperationalDecompositionTests.NameGenerator.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public abstract class OperationalDecompositionTests
+public abstract class OperationalDecompositionTests extends ScenarioTests
 {
 
     /**
      * This is used so that we can hook up the profiler in JVisualVM.
-     * @throws InterruptedException
+     * @throws InterruptedException If we couldn't sleep the required period of time.
      */
     @Test
     @Order(0)
@@ -70,7 +69,21 @@ public abstract class OperationalDecompositionTests
         Thread.sleep(20_000);
     }
 
-    //#region Scenarios
+    @BeforeEach
+    public void beforeEachTest()
+    {
+        // Create the repo for the test:
+        this.systemUnderTest.createRepo();
+    }
+
+    @AfterEach
+    public void afterEachTest()
+    {
+        // Free the repo for the test:
+        this.systemUnderTest.freeRepo();
+    }
+
+    //#region Scenario Tests
 
     /**
      * (NC): New + Commit:
@@ -79,8 +92,7 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NC()
     {
-        newContent();
-        commit();
+        scenario_NC();
     }
 
 
@@ -91,12 +103,7 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NCMCDC()
     {
-        newContent();
-        commit();
-        modifyContent();
-        commit();
-        deleteContent();
-        commit();
+        scenario_NCMCDC();
     }
 
     /**
@@ -106,9 +113,7 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NCO()
     {
-        newContent();
-        commit();
-        checkout();
+        scenario_NCO();
     }
 
     /**
@@ -118,9 +123,7 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NCB()
     {
-        newContent();
-        commit();
-        branch();
+        scenario_NCB();
     }
     /**
      * (NCBMC): New + Commit + Branch + Modify + Commit:
@@ -129,11 +132,7 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NCBMC()
     {
-        newContent();
-        commit();
-        branch();
-        modifyContent();
-        commit();
+        scenario_NCBMC();
     }
     /**
      * (NC1B1MC2G1|2>1): New + Commit1 + Branch1 + Modify + Commit2 + Merge1|2>1:
@@ -143,12 +142,7 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NC1B1MC2G1_2__1()
     {
-        newContent();
-        commit1();
-        branch1();
-        modifyContent();
-        commit2();
-        merge1_2__1();
+        scenario_NC1B1MC2G1_2__1();
     }
     /**
      * (NC1B1M1C2B2M1C3G2|3>1): New + Commit1 + Branch1 + Modify1 + Commit2 + Branch2 + Modify1 + Commit3 Merge2|3>1:
@@ -161,179 +155,9 @@ public abstract class OperationalDecompositionTests
     @Test
     public void NC1B1M1C2B2M1C3G2_3__1()
     {
-        newContent();
-        commit1();
-        branch1();
-        modify1();
-        commit2();
-        branch2();
-        modify1B();
-        commit3();
-        merge3_2__1();
+        scenario_NC1B1M1C2B2M1C3G2_3__1();
     }
 
     //#endregion Scenarios
 
-    //#region Operations
-
-    /**
-     * This creates the repo for the test.
-     * You should store the repo in an instance field.
-     * This is called once before each test starts.
-     */
-    protected abstract void createRepo();
-
-    @BeforeEach
-    public void beforeEachTest()
-    {
-        // Create the repo for the test:
-        createRepo();
-    }
-
-
-    /**
-     * New (N): New content is created in the content-area.
-     */
-    protected abstract void newContent();
-
-    /**
-     * Modify (MN): Content is modified in the content-area.
-     * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
-     */
-    protected abstract void modifyContent();
-
-    /**
-     * Modify (MN): Content is modified in the content-area.
-     * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
-     */
-    protected abstract void modify1();
-
-    /**
-     * Modify (MN): Content is modified in the content-area.
-     * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
-     */
-    protected abstract void modify1B();
-
-    /**
-     * Delete (D): Content is deleted in the content-area.
-     */
-    protected abstract void deleteContent();
-
-    /**
-     * Commit (CN): The content-area is committed to the repo to create a snapshot.
-     * If the commit is followed by a number N, then the number is used to label the specific commit.
-     */
-    protected abstract void commit();
-
-    /**
-     * Commit (CN): The content-area is committed to the repo to create a snapshot.
-     * If the commit is followed by a number N, then the number is used to label the specific commit.
-     */
-    protected abstract void commit1();
-
-    /**
-     * Commit (CN): The content-area is committed to the repo to create a snapshot.
-     * If the commit is followed by a number N, then the number is used to label the specific commit.
-     */
-    protected abstract void commit2();
-
-    /**
-     * Commit (CN): The content-area is committed to the repo to create a snapshot.
-     * If the commit is followed by a number N, then the number is used to label the specific commit.
-     */
-    protected abstract void commit3();
-
-    /**
-     * Checkout (ON): A previously committed snapshot is checked-out from the repo.
-     * If the checkout is followed by a number N, then it relates to the commit CN with the corresponding number.
-     */
-    protected abstract void checkout();
-
-    /**
-     * Branch (BN): A branch is created in the repo.
-     * If the branch is followed by a number N, then the number is used to label the specific branch.
-     */
-    protected abstract void branch();
-
-    /**
-     * Branch (BN): A branch is created in the repo.
-     * If the branch is followed by a number N, then the number is used to label the specific branch.
-     */
-    protected abstract void branch1();
-
-    /**
-     * Branch (BN): A branch is created in the repo.
-     * If the branch is followed by a number N, then the number is used to label the specific branch.
-     */
-    protected abstract void branch2();
-
-    /**
-     * Merge (GX|Y>Z): Two or more commits are merged into one branch.
-     * If the merge is followed by symbols, then the values separated by pipes represent the corresponding commits.
-     * The destination branch is preceded by an angle bracket >.
-     * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
-     */
-    protected abstract void merge1_2__1();
-
-    /**
-     * Merge (GX|Y>Z): Two or more commits are merged into one branch.
-     * If the merge is followed by symbols, then the values separated by pipes represent the corresponding commits.
-     * The destination branch is preceded by an angle bracket >.
-     * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
-     */
-    protected abstract void merge3_2__1();
-
-    //#endregion Operations
-
-    //#region Helper Methods
-
-    public static class NameGenerator implements DisplayNameGenerator
-    {
-
-        /**
-         * Generate a display name for the given top-level or {@code static} nested test class.
-         *
-         * @param testClass the class to generate a name for; never {@code null}
-         * @return the display name for the class; never {@code null} or blank
-         */
-        @Override
-        public String generateDisplayNameForClass(Class<?> testClass)
-        {
-            return testClass.getSimpleName();
-        }
-
-        /**
-         * Generate a display name for the given Nested inner test class.
-         *
-         * @param nestedClass the class to generate a name for; never {@code null}
-         * @return the display name for the nested class; never {@code null} or blank
-         */
-        @Override
-        public String generateDisplayNameForNestedClass(Class<?> nestedClass)
-        {
-            return nestedClass.getSimpleName();
-        }
-
-        /**
-         * Generate a display name for the given method.
-         *
-         * @param testClass  the class the test method is invoked on; never {@code null}
-         * @param testMethod method to generate a display name for; never {@code null}
-         * @return the display name for the test; never {@code null} or blank
-         * @implNote The class instance supplied as {@code testClass} may differ from
-         * the class returned by {@code testMethod.getDeclaringClass()} &mdash; for
-         * example, when a test method is inherited from a superclass.
-         */
-        @Override
-        public String generateDisplayNameForMethod(Class<?> testClass, Method testMethod)
-        {
-            String className = testClass.getSimpleName();
-            className = className.replace("Base", "");
-            className = className.replace("Tests", "");
-            className = className.replace("Test", "");
-            return className + ": " + testMethod.getName();
-        }
-
-    }
-    //#endregion Helper Methods
 }

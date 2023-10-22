@@ -1,7 +1,5 @@
 package io.nanovc.memory;
 
-import io.nanovc.junit.TestDirectory;
-import io.nanovc.junit.TestDirectoryExtension;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
@@ -10,69 +8,90 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Tests the jgit decomposition.
  */
-@ExtendWith(TestDirectoryExtension.class)
-public class JGitOperationalDecompositionTests extends OperationalDecompositionTests
+public class JGitRepo extends SystemUnderTest
 {
+
+    /**
+     * Gets the name of the system being tested.
+     *
+     * @return The name of the system being tested.
+     */
+    @Override
+    public String getSystemName()
+    {
+        return "JGit Repo";
+    }
+
     /**
      * The path where we can work for the unit test that is running.
      */
-    @TestDirectory(useTestName = true)
     public Path testPath;
+
+    /**
+     * The repo path where files can be written.
+     * This is valid after {@link #createRepo()} is called.
+     */
+    public Path repoPath;
 
     /**
      * The last commit that was created.
      */
-    protected RevCommit lastCommit;
+    public RevCommit lastCommit;
 
     /**
      * This holds the reference to the last check out.
      */
-    protected Ref lastCheckout;
+    public Ref lastCheckout;
 
     /**
      * The name of the last branch that was created.
      */
-    protected String lastBranchName;
+    public String lastBranchName;
 
     /**
      * The name of branch 1.
      */
-    protected String branch1Name;
+    public String branch1Name;
 
     /**
      * The name of branch 2.
      */
-    protected String branch2Name;
+    public String branch2Name;
 
     /**
      * Commit labelled 1.
      */
-    protected RevCommit commit1;
+    public RevCommit commit1;
 
     /**
      * Commit labelled 2.
      */
-    protected RevCommit commit2;
+    public RevCommit commit2;
 
     /**
      * Commit labelled 3.
      */
-    protected RevCommit commit3;
+    public RevCommit commit3;
 
     /**
      * The git repo that we are creating.
      */
-    protected Git git;
+    public Git git;
+
+    /**
+     * This is the next instance counter for creating the repo.
+     */
+    protected AtomicInteger nextRepoInstance = new AtomicInteger(0);
 
     /**
      * This creates the repo for the test.
@@ -80,11 +99,17 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * This is called once before each test starts.
      */
     @Override
-    protected void createRepo()
+    public void createRepo()
     {
+        // Get the next instance path for the repo:
+        int nextInstance = this.nextRepoInstance.incrementAndGet();
+
+        // Get the path for the next instance:
+        this.repoPath = this.testPath.resolve(Integer.toString(nextInstance));
+
         try
         {
-            git = Git.init().setInitialBranch("main").setDirectory(testPath.toFile()).call();
+            git = Git.init().setInitialBranch("main").setDirectory(this.repoPath.toFile()).call();
         }
         catch (GitAPIException e)
         {
@@ -102,11 +127,11 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * New (N): New content is created in the content-area.
      */
     @Override
-    protected void newContent()
+    public void newContent()
     {
         try
         {
-            Files.writeString(testPath.resolve("path.txt"), "Hello World", StandardOpenOption.CREATE_NEW);
+            Files.writeString(repoPath.resolve("path.txt"), "Hello World", StandardOpenOption.CREATE_NEW);
             DirCache index1 = git.add().addFilepattern("path.txt").call();
         }
         catch (IOException | GitAPIException e)
@@ -120,11 +145,11 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
      */
     @Override
-    protected void modifyContent()
+    public void modifyContent()
     {
         try
         {
-            Files.writeString(testPath.resolve("path.txt"), "Hello Again World", StandardOpenOption.WRITE);
+            Files.writeString(repoPath.resolve("path.txt"), "Hello Again World", StandardOpenOption.WRITE);
             DirCache index1 = git.add().addFilepattern("path.txt").call();
         }
         catch (IOException | GitAPIException e)
@@ -138,13 +163,13 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
      */
     @Override
-    protected void modify1()
+    public void modify1()
     {
         try
         {
             // Checkout the content for commit 1:
             git.checkout().setName(this.lastBranchName).setStartPoint(this.commit1).call();
-            Files.writeString(testPath.resolve("path.txt"), "Hello Again World and Again", StandardOpenOption.WRITE);
+            Files.writeString(repoPath.resolve("path.txt"), "Hello Again World and Again", StandardOpenOption.WRITE);
             DirCache index1 = git.add().addFilepattern("path.txt").call();
         }
         catch (IOException | GitAPIException e)
@@ -158,13 +183,13 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the modification is followed by a number N, then it represents a modification to the content-area that was committed in commit CN (see below).
      */
     @Override
-    protected void modify1B()
+    public void modify1B()
     {
         try
         {
             // Checkout the content for commit 1:
             git.checkout().setName(this.lastBranchName).setStartPoint(this.commit1).call();
-            Files.writeString(testPath.resolve("path.txt"), "Hello Again World and Again and Again", StandardOpenOption.WRITE);
+            Files.writeString(repoPath.resolve("path.txt"), "Hello Again World and Again and Again", StandardOpenOption.WRITE);
             DirCache index1 = git.add().addFilepattern("path.txt").call();
         }
         catch (IOException | GitAPIException e)
@@ -177,11 +202,11 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * Delete (D): Content is deleted in the content-area.
      */
     @Override
-    protected void deleteContent()
+    public void deleteContent()
     {
         try
         {
-            Files.deleteIfExists(this.testPath.resolve("path.txt"));
+            Files.deleteIfExists(this.repoPath.resolve("path.txt"));
             DirCache index1 = git.add().addFilepattern("path.txt").call();
         }
         catch (IOException | GitAPIException e)
@@ -195,7 +220,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit()
+    public void commit()
     {
         try
         {
@@ -242,7 +267,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit1()
+    public void commit1()
     {
         // Perform a commit:
         commit();
@@ -256,7 +281,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit2()
+    public void commit2()
     {
         // Perform a commit:
         commit();
@@ -270,7 +295,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the commit is followed by a number N, then the number is used to label the specific commit.
      */
     @Override
-    protected void commit3()
+    public void commit3()
     {
         // Perform a commit:
         commit();
@@ -284,7 +309,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the checkout is followed by a number N, then it relates to the commit CN with the corresponding number.
      */
     @Override
-    protected void checkout()
+    public void checkout()
     {
         try
         {
@@ -314,7 +339,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the branch is followed by a number N, then the number is used to label the specific branch.
      */
     @Override
-    protected void branch()
+    public void branch()
     {
         this.lastBranchName = "Branch";
         try
@@ -332,7 +357,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the branch is followed by a number N, then the number is used to label the specific branch.
      */
     @Override
-    protected void branch1()
+    public void branch1()
     {
         this.branch1Name = "Branch1";
         this.lastBranchName = this.branch1Name;
@@ -351,7 +376,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * If the branch is followed by a number N, then the number is used to label the specific branch.
      */
     @Override
-    protected void branch2()
+    public void branch2()
     {
         this.branch2Name = "Branch2";
         this.lastBranchName = this.branch2Name;
@@ -372,7 +397,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
      */
     @Override
-    protected void merge1_2__1()
+    public void merge1_2__1()
     {
         try
         {
@@ -405,7 +430,7 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
      * Therefore GX|Y>Z means that commit CX and CY was merged into branch BZ.
      */
     @Override
-    protected void merge3_2__1()
+    public void merge3_2__1()
     {
         try
         {
@@ -429,5 +454,26 @@ public class JGitOperationalDecompositionTests extends OperationalDecompositionT
         {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * This creates the repo for the test.
+     * You should store the repo in an instance field.
+     * This is called once before each test starts.
+     */
+    @Override
+    public void freeRepo()
+    {
+        if (git != null) git.close();
+
+        this.git = null;
+        this.commit1 = null;
+        this.commit2 = null;
+        this.commit3 = null;
+        this.branch1Name = null;
+        this.branch2Name = null;
+        this.lastCheckout = null;
+        this.lastCommit = null;
+        this.lastBranchName = null;
     }
 }
